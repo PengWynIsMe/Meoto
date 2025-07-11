@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cars",
+  "info": {
+    "singularName": "car",
+    "pluralName": "cars",
+    "displayName": "Car"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "brand": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::brand.brand",
+      "inversedBy": "cars"
+    },
+    "model": {
+      "type": "string"
+    },
+    "city": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::city.city",
+      "inversedBy": "cars"
+    },
+    "transmission": {
+      "type": "enumeration",
+      "enum": [
+        "All",
+        "Số sàn",
+        "Số tự động"
+      ]
+    },
+    "origin": {
+      "type": "enumeration",
+      "enum": [
+        "Trong nước",
+        "Xuất khẩu"
+      ]
+    },
+    "body_style": {
+      "type": "enumeration",
+      "enum": [
+        "Sedan",
+        "SUV",
+        "Hatchback"
+      ]
+    },
+    "year": {
+      "type": "integer"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "mileage": {
+      "type": "integer"
+    },
+    "isNew": {
+      "type": "boolean",
+      "default": false
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}
