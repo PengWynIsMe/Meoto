@@ -1,4 +1,3 @@
-// components/car/CarCard.tsx
 import React from "react";
 import { Camera, Gauge, Zap, Settings } from "lucide-react";
 
@@ -22,7 +21,7 @@ const CarCard: React.FC<CarCardProps> = ({
   image,
   id,
   featured,
-  imageCount = 1,
+  imageCount = 1, // chưa sửa lại media image trong DB
   year,
   category,
   title,

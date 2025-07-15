@@ -1,9 +1,15 @@
 import { json, type LoaderFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import "~/styles/slider.css";
 
 import { getHeader } from "~/services/header";
-import { getCars, getCities, getBrands } from "~/services/car";
+import {
+  getCars,
+  getCities,
+  getBrands,
+  fetchFilteredCars,
+} from "~/services/car";
 
 import Header from "~/components/layout/Header";
 import Slider from "~/components/layout/Slider";
@@ -60,8 +66,38 @@ export const loader: LoaderFunction = async () => {
 };
 
 export default function IndexPage() {
-  const { menuItems, slides, cars, cities, brands } =
-    useLoaderData<typeof loader>();
+  const {
+    menuItems,
+    slides,
+    cars: initialCars,
+    cities,
+    brands,
+  } = useLoaderData<typeof loader>();
+  const [cars, setCars] = useState<CarCardProps[]>(initialCars);
+  const [searched, setSearched] = useState(false);
+
+  const handleSearch = async (filters: any) => {
+    const result = await fetchFilteredCars(filters);
+
+    const formattedResult: CarCardProps[] = result.map((car: any) => ({
+      id: car.id.toString(),
+      image: car.image ? `${BASE_URL}${car.image}` : "/placeholder.jpg",
+      featured: true,
+      imageCount: 1,
+      year: car.year,
+      category: car.body_style,
+      title: `${car.name} - ${car.model}`,
+      mileage: car.mileage,
+      fuelType: car.origin,
+      transmission: car.transmission,
+      price: car.price,
+      sellerName: car.brand?.name ?? "Unknown",
+      sellerAvatar: "/default-avatar.png",
+    }));
+
+    setCars(formattedResult);
+    setSearched(true);
+  };
 
   return (
     <>
@@ -69,15 +105,23 @@ export default function IndexPage() {
       <Slider slides={slides} />
 
       <section className="bg-white py-8 px-6">
-        <CarFilterForm cities={cities} brands={brands} />
+        <CarFilterForm
+          cities={cities}
+          brands={brands}
+          onSearch={handleSearch}
+        />
       </section>
 
       <section className="bg-gray-50 py-8 px-6">
         <h2 className="text-2xl font-bold mb-6 text-center">Xe Mới Đăng Bán</h2>
         <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-screen-xl">
-          {cars.map((car: CarCardProps) => (
-            <CarCard key={car.id} {...car} />
-          ))}
+          {cars.length > 0 ? (
+            cars.map((car: CarCardProps) => <CarCard key={car.id} {...car} />)
+          ) : searched ? (
+            <div className="col-span-full text-center text-gray-500 text-lg font-medium">
+              Không tìm được xe phù hợp.
+            </div>
+          ) : null}
         </div>
       </section>
     </>

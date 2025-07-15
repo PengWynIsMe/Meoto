@@ -5,12 +5,26 @@ import { Car } from "lucide-react";
 type Props = {
   cities?: any[];
   brands?: any[];
+  onSearch?: (filters: any) => Promise<void>;
 };
 
-const CarFilterForm: React.FC<Props> = ({ cities = [], brands = [] }) => {
-  const [priceRange, setPriceRange] = useState([528000000, 5000000000]);
+const CarFilterForm: React.FC<Props> = ({
+  cities = [],
+  brands = [],
+  onSearch,
+}) => {
+  const [priceRange, setPriceRange] = useState([0, 5000000000]);
   const [kmRange, setKmRange] = useState([0, 300000]);
   const [showNewOnly, setShowNewOnly] = useState(false);
+  const [keyword, setKeyword] = useState("");
+  const [location, setLocation] = useState("");
+  const [gear, setGear] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [brand, setBrand] = useState("");
+  const [model, setModel] = useState("");
+  const [style, setStyle] = useState("");
+  const [yearFrom, setYearFrom] = useState("");
+  const [yearTo, setYearTo] = useState("");
 
   const inputClass =
     "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500";
@@ -18,6 +32,7 @@ const CarFilterForm: React.FC<Props> = ({ cities = [], brands = [] }) => {
   const MIN = 0;
   const MAX = 5000000000;
   const STEP = 100000000;
+
   const formatPrice = (price: number) => {
     if (price >= 1_000_000_000)
       return `${(price / 1_000_000_000).toFixed(1)} tỷ`;
@@ -25,288 +40,248 @@ const CarFilterForm: React.FC<Props> = ({ cities = [], brands = [] }) => {
     return `${price.toLocaleString()} đồng`;
   };
 
-  const formatKm = (km: number) => {
-    return `${km.toLocaleString("vi-VN")} Km`;
-  };
+  const formatKm = (km: number) => `${km.toLocaleString("vi-VN")} Km`;
 
-  // Sample data for demo
-  const sampleCities =
-    cities.length > 0
-      ? cities
-      : [
-          { id: 1, name: "Hà Nội" },
-          { id: 2, name: "Hồ Chí Minh" },
-          { id: 3, name: "Đà Nẵng" },
-          { id: 4, name: "Cần Thơ" },
-        ];
+  const sampleCities = cities.length
+    ? cities
+    : [
+        { id: 1, name: "Hà Nội" },
+        { id: 2, name: "Hồ Chí Minh" },
+        { id: 3, name: "Đà Nẵng" },
+        { id: 4, name: "Cần Thơ" },
+      ];
 
-  const sampleBrands =
-    brands.length > 0
-      ? brands
-      : [
-          { id: 1, name: "Toyota" },
-          { id: 2, name: "Honda" },
-          { id: 3, name: "Ford" },
-          { id: 4, name: "Hyundai" },
-        ];
+  const sampleBrands = brands.length
+    ? brands
+    : [
+        { id: 1, name: "Toyota" },
+        { id: 2, name: "Honda" },
+        { id: 3, name: "Ford" },
+        { id: 4, name: "Hyundai" },
+      ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted");
+    const filters = {
+      keyword,
+      location,
+      gear,
+      origin,
+      brand,
+      model,
+      style,
+      yearFrom,
+      yearTo,
+      priceRange,
+      kmRange,
+      showNewOnly,
+    };
+    if (onSearch) {
+      await onSearch(filters);
+    }
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-teal-600 mb-1 flex items-center gap-2">
-          <Car className="text-teal-500" size={24} />
-          Tìm xe theo tiêu chí của bạn
-        </h2>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-6 rounded-2xl shadow-md space-y-6 border border-gray-100"
+    >
+      <h2 className="text-xl font-bold text-teal-600 flex items-center gap-2">
+        <Car size={24} /> Tìm xe theo tiêu chí của bạn
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <input
+          className={inputClass}
+          placeholder="Từ khóa (VD: Vios 2021)"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+        />
+        <select
+          className={inputClass}
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        >
+          <option value="">Vị trí xe</option>
+          {sampleCities.map((c) => (
+            <option key={c.id} value={c.name}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <select
+          className={inputClass}
+          value={gear}
+          onChange={(e) => setGear(e.target.value)}
+        >
+          <option value="">Hộp số</option>
+          <option value="Số sàn">Số sàn</option>
+          <option value="Tự động">Tự động</option>
+          <option value="CVT">CVT</option>
+        </select>
+        <select
+          className={inputClass}
+          value={origin}
+          onChange={(e) => setOrigin(e.target.value)}
+        >
+          <option value="">Xuất xứ</option>
+          <option value="Trong nước">Trong nước</option>
+          <option value="Nhập khẩu">Nhập khẩu</option>
+        </select>
       </div>
 
-      <div className="space-y-4">
-        {/* Hàng 1: Từ Khóa, Vị Trí Xe, Hộp Số, Xuất Xứ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Từ Khóa
-            </label>
-            <input
-              type="text"
-              placeholder="Ví dụ: toyota vios 2020"
-              className={inputClass}
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <select
+          className={inputClass}
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+        >
+          <option value="">Thương hiệu</option>
+          {sampleBrands.map((b) => (
+            <option key={b.id} value={b.name}>
+              {b.name}
+            </option>
+          ))}
+        </select>
+        <select
+          className={inputClass}
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+        >
+          <option value="">Mẫu xe</option>
+        </select>
+        <select
+          className={inputClass}
+          value={style}
+          onChange={(e) => setStyle(e.target.value)}
+        >
+          <option value="">Kiểu dáng</option>
+          <option value="Sedan">Sedan</option>
+          <option value="SUV">SUV</option>
+          <option value="Hatchback">Hatchback</option>
+          <option value="Crossover">Crossover</option>
+          <option value="Pickup">Pickup</option>
+        </select>
+        <select
+          className={inputClass}
+          value={yearFrom}
+          onChange={(e) => setYearFrom(e.target.value)}
+        >
+          <option value="">Từ năm</option>
+          {Array.from({ length: 25 }, (_, i) => 2024 - i).map((y) => (
+            <option key={y}>{y}</option>
+          ))}
+        </select>
+        <select
+          className={inputClass}
+          value={yearTo}
+          onChange={(e) => setYearTo(e.target.value)}
+        >
+          <option value="">Đến năm</option>
+          {Array.from({ length: 25 }, (_, i) => 2024 - i).map((y) => (
+            <option key={y}>{y}</option>
+          ))}
+        </select>
+      </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Vị Trí Xe
-            </label>
-            <select className={inputClass}>
-              <option value="">Hồ Chí Minh</option>
-              {sampleCities.map((city) => (
-                <option key={city.id} value={city.name}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Hộp Số
-            </label>
-            <select className={inputClass}>
-              <option value="">Tất cả</option>
-              <option value="Số sàn">Số sàn</option>
-              <option value="Tự động">Tự động</option>
-              <option value="CVT">CVT</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Xuất Xứ
-            </label>
-            <select className={inputClass}>
-              <option value="">Tất cả</option>
-              <option value="Trong nước">Trong nước</option>
-              <option value="Nhập khẩu">Nhập khẩu</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Hàng 2: Thương Hiệu, Mẫu Xe, Kiểu Dáng, Từ Năm, Đến Năm */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Thương Hiệu
-            </label>
-            <select className={inputClass}>
-              <option value="">Tất cả thương hiệu</option>
-              {sampleBrands.map((brand) => (
-                <option key={brand.id} value={brand.name}>
-                  {brand.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Mẫu Xe
-            </label>
-            <select className={inputClass}>
-              <option value="">Tất cả mẫu xe</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Kiểu Dáng
-            </label>
-            <select className={inputClass}>
-              <option value="">Tất cả kiểu xe</option>
-              <option value="Sedan">Sedan</option>
-              <option value="SUV">SUV</option>
-              <option value="Hatchback">Hatchback</option>
-              <option value="Crossover">Crossover</option>
-              <option value="Pickup">Pickup</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Từ Năm
-            </label>
-            <select className={inputClass}>
-              <option value="">Chọn năm</option>
-              {Array.from({ length: 25 }, (_, i) => 2024 - i).map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Đến Năm
-            </label>
-            <select className={inputClass}>
-              <option value="">Chọn năm</option>
-              {Array.from({ length: 25 }, (_, i) => 2024 - i).map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Hàng 3: Khoảng Giá và Số Km */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Khoảng giá */}
-          <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-4">
-              Khoảng Giá:{" "}
-              <span className="text-teal-600 font-semibold">
-                {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
-              </span>
-            </label>
-            <div className="px-2">
-              <Range
-                values={priceRange}
-                step={STEP}
-                min={MIN}
-                max={MAX}
-                onChange={(values) => setPriceRange(values)}
-                renderTrack={({ props, children }) => (
-                  <div
-                    {...props}
-                    className="h-2 rounded-full"
-                    style={{
-                      ...props.style,
-                      background: getTrackBackground({
-                        values: priceRange,
-                        colors: ["#e5e7eb", "#14b8a6", "#e5e7eb"],
-                        min: MIN,
-                        max: MAX,
-                      }),
-                    }}
-                  >
-                    {children}
-                  </div>
-                )}
-                renderThumb={({ props }) => (
-                  <div
-                    {...props}
-                    className="h-6 w-6 bg-teal-500 rounded-full shadow-lg border-2 border-white"
-                    style={{
-                      ...props.style,
-                    }}
-                  />
-                )}
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>0</span>
-                <span>5.0 tỷ</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Số Km */}
-          <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-4">
-              Số Km Tối Đa:{" "}
-              <span className="text-teal-600 font-semibold">
-                {formatKm(kmRange[1])}
-              </span>
-            </label>
-            <div className="px-2">
-              <Range
-                values={[kmRange[1]]}
-                step={10000}
-                min={0}
-                max={300000}
-                onChange={(values) => setKmRange([0, values[0]])}
-                renderTrack={({ props, children }) => (
-                  <div
-                    {...props}
-                    className="h-2 rounded-full"
-                    style={{
-                      ...props.style,
-                      background: getTrackBackground({
-                        values: [kmRange[1]],
-                        colors: ["#14b8a6", "#e5e7eb"],
-                        min: 0,
-                        max: 300000,
-                      }),
-                    }}
-                  >
-                    {children}
-                  </div>
-                )}
-                renderThumb={({ props }) => (
-                  <div
-                    {...props}
-                    className="h-6 w-6 bg-teal-500 rounded-full shadow-lg border-2 border-white"
-                    style={{
-                      ...props.style,
-                    }}
-                  />
-                )}
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>0</span>
-                <span>300000</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Hàng 4: Checkbox và Submit */}
-        <div className="flex items-center justify-between pt-4">
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={showNewOnly}
-              onChange={(e) => setShowNewOnly(e.target.checked)}
-              className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-            />
-            Chỉ hiển thị xe mới
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Khoảng giá */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Khoảng Giá:{" "}
+            <span className="text-teal-600 font-semibold">
+              {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+            </span>
           </label>
+          <Range
+            values={priceRange}
+            step={STEP}
+            min={MIN}
+            max={MAX}
+            onChange={setPriceRange}
+            renderTrack={({ props, children }) => (
+              <div
+                {...props}
+                className="h-2 rounded-full bg-gray-200"
+                style={{
+                  background: getTrackBackground({
+                    values: priceRange,
+                    colors: ["#e5e7eb", "#14b8a6", "#e5e7eb"],
+                    min: MIN,
+                    max: MAX,
+                  }),
+                }}
+              >
+                {children}
+              </div>
+            )}
+            renderThumb={({ props }) => (
+              <div
+                {...props}
+                className="h-6 w-6 bg-teal-500 rounded-full shadow border-2 border-white"
+              />
+            )}
+          />
+        </div>
 
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="px-8 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors duration-200 shadow-md hover:shadow-lg"
-          >
-            TÌM KIẾM
-          </button>
+        {/* Số km */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Số Km Tối Đa:{" "}
+            <span className="text-teal-600 font-semibold">
+              {formatKm(kmRange[1])}
+            </span>
+          </label>
+          <Range
+            values={[kmRange[1]]}
+            step={10000}
+            min={0}
+            max={300000}
+            onChange={(v) => setKmRange([0, v[0]])}
+            renderTrack={({ props, children }) => (
+              <div
+                {...props}
+                className="h-2 rounded-full bg-gray-200"
+                style={{
+                  background: getTrackBackground({
+                    values: [kmRange[1]],
+                    colors: ["#14b8a6", "#e5e7eb"],
+                    min: 0,
+                    max: 300000,
+                  }),
+                }}
+              >
+                {children}
+              </div>
+            )}
+            renderThumb={({ props }) => (
+              <div
+                {...props}
+                className="h-6 w-6 bg-teal-500 rounded-full shadow border-2 border-white"
+              />
+            )}
+          />
         </div>
       </div>
-    </div>
+
+      <div className="flex items-center justify-between pt-4">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={showNewOnly}
+            onChange={(e) => setShowNewOnly(e.target.checked)}
+            className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+          />
+          Chỉ hiển thị xe mới
+        </label>
+        <button
+          type="submit"
+          className="px-8 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors duration-200 shadow-md hover:shadow-lg"
+        >
+          TÌM KIẾM
+        </button>
+      </div>
+    </form>
   );
 };
 

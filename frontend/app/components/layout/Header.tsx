@@ -1,4 +1,3 @@
-// app/components/layout/Header.tsx
 import { Link } from "@remix-run/react";
 import { useState } from "react";
 
@@ -6,14 +5,6 @@ export default function Header({ headerData }: { headerData: any }) {
   console.log("LOGO:", headerData.logo);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const menu = headerData.menu_items || [];
-
-  const handleMouseEnter = (itemId: number) => {
-    setActiveDropdown(itemId);
-  };
-
-  const handleMouseLeave = () => {
-    setActiveDropdown(null);
-  };
 
   const getImageUrl = (url: string) => {
     if (!url) return "";
@@ -169,7 +160,7 @@ export default function Header({ headerData }: { headerData: any }) {
   return (
     <header className="border-b shadow-sm bg-white text-black">
       <nav className="flex items-center justify-between px-6 py-4 mx-auto">
-        {/* Left: Logo + Slogan */}
+        {/* Left */}
         <div className="flex flex-col items-start">
           <Link to="/" className="flex items-center gap-2">
             {headerData.logo?.url && (
@@ -185,7 +176,7 @@ export default function Header({ headerData }: { headerData: any }) {
           </span>
         </div>
 
-        {/* Middle: Menu Items */}
+        {/* Middle */}
         <div className="flex gap-6 items-center">
           {menu.map((item: any) => (
             <div
@@ -216,7 +207,7 @@ export default function Header({ headerData }: { headerData: any }) {
           ))}
         </div>
 
-        {/* Right: Icons + Login */}
+        {/* Right */}
         <div className="flex items-center gap-4 text-black">
           <div className="flex items-center gap-4 text-black">
             <Link to="/search" className="hover:text-green-400">
